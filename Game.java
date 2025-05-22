@@ -85,7 +85,7 @@ public class Game {
         currentMaze.displayFullMaze();
         try {
             for (int i = 10; i > 0; i--) {
-                System.out.print("\rRemember This Maze... " + i + " detik");
+                System.out.print("\rRemember This Maze... " + i + " Seconds left");
                 Thread.sleep(1000);
             }
         } catch (InterruptedException e) {
