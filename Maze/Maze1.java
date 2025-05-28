@@ -1,11 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.cikalstudio.invisiblemaze;
 
-public class Maze1 extends Maze {
-    @Override
+public class Maze1 extends Maze { //extends ini inheritance
+    @Override //Turunan dari Abstrak maze
     public void loadMaze() {
         System.out.println("==================================================\n" +
 "                INVISIBLE MAZE LEVEL 1                 \n" +
