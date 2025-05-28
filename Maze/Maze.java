@@ -1,12 +1,22 @@
 package com.cikalstudio.invisiblemaze;
 
 import java.util.Scanner;
+import java.util.ArrayList;
 
 public class Game {
     private Player player;
     private Maze currentMaze;
     private int lives = 3;
     private Scanner scanner = new Scanner(System.in);
+    private ArrayList<String> moveHistory = new ArrayList<>();
+
+    public int getLives() {
+        return lives;
+    }
+
+    public void setLives(int lives) {
+        this.lives = lives;
+    }
 
     public void start() {
         System.out.println("=========================================================================\n" +
@@ -44,14 +54,13 @@ public class Game {
                     "                    GAME INSTRUCTIONS                \n" +
                     "==================================================\n" +
                     "\n" +
-                    "- You will have 15 seconds to memorize the maze map.\n" +
+                    "- You will have 10 seconds to memorize the maze map.\n" +
                     "- '#' represents walls, 'P' is the player's starting position, and 'E' is the exit.\n" +
-                    "- After 15 seconds, the original map will be hidden.\n" +
+                    "- After 10 seconds, the original map will be hidden.\n" +
                     "- Only your position (P), the exit (E), and dots '.' for unseen areas will be displayed.\n" +
                     "- Use the W (up), A (left), S (down), and D (right) keys to move.\n" +
                     "- If you hit a wall, you lose 1 life. You have 3 lives in total.\n" +
                     "- Find your way to the exit before you run out of lives!");
-                System.out.println("So wanna try now? (Y/N)");
             } else {
                 System.out.println("Invalid input! please answer Y or N.");
             }
@@ -87,15 +96,16 @@ public class Game {
         maze.loadMaze();
         currentMaze = maze;
         player = new Player(maze.getPlayerStartX(), maze.getPlayerStartY());
+        moveHistory.clear();
 
         currentMaze.displayFullMaze();
         try {
-            for (int i = 15; i > 0; i--) {
+            for (int i = 10; i > 0; i--) {
                 System.out.print("\rRemember This Maze... " + i + " Seconds left");
                 Thread.sleep(1000);
             }
         } catch (InterruptedException e) {
-            // Ignore
+            // Do nothing
         }
 
         System.out.println("\nTime's up! The Maze is hidden!");
@@ -123,6 +133,9 @@ public class Game {
                     continue;
             }
 
+            // Simpan langkah ke moveHistory
+            moveHistory.add(String.valueOf(Character.toUpperCase(move)));
+
             if (currentMaze.isWall(nextX, nextY)) {
                 System.out.println("You hit a wall! Lose life.");
                 lives--;
@@ -130,6 +143,9 @@ public class Game {
                 player.setPosition(nextX, nextY);
                 if (currentMaze.isExit(nextX, nextY)) {
                     System.out.println("You found the way out!");
+                    // Tampilkan history
+                    System.out.println("Here are your steps for this level:");
+                    System.out.println(String.join(" -> ", moveHistory));
                     break;
                 }
             }
