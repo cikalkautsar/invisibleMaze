@@ -1,54 +1,149 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.cikalstudio.invisiblemaze;
 
-/**
- *
- * @author cikal
- */
-public abstract class Maze {
-    protected char[][] maze;
-    protected int playerStartX;
-    protected int playerStartY;
-    protected int exitX;
-    protected int exitY;
+import java.util.Scanner;
 
-    public abstract void loadMaze(); // tiap level beda bentuk
+public class Game {
+    private Player player;
+    private Maze currentMaze;
+    private int lives = 3;
+    private Scanner scanner = new Scanner(System.in);
 
-    public void displayFullMaze() {
-        System.out.println("=== WELCOME TO THE MAZE ===");
-        for (char[] row : maze) {
-            for (char cell : row) System.out.print(cell + " ");
-            System.out.println();
+    public void start() {
+        System.out.println("=========================================================================\n" +
+            "\n" +
+            "  ___ _   ___     _____ ____ ___ ____  _     _____ \n" +
+            " |_ _| \\ | \\ \\   / /_ _/ ___|_ _| __ )| |   | ____|\n" +
+            "  | ||  \\| |\\ \\ / / | |\\___ \\| ||  _ \\| |   |  _|  \n" +
+            "  | || |\\  | \\ V /  | | ___) | || |_) | |___| |___ \n" +
+            " |___|_| \\_|_ \\_/ _|___|____/___|____/|_____|_____|\n" +
+            " |  \\/  |  / \\   |__  / ____|                      \n" +
+            " | |\\/| | / _ \\    / /|  _|                        \n" +
+            " | |  | |/ ___ \\  / /_| |___                       \n" +
+            " |_|  |_/_/   \\_\\/____|_____|                      \n" +
+            "                                                   \n" +
+            "\n" +
+            "Hello, Champions! Are you ready to take on the memorization challenge?\n" +
+            "=========================================================================="
+            + ""
+            + "\nInvisible Maze is a maze-based adventure game where players must navigate paths that are hidden from view.\nAt the beginning of the game, players are given a short amount of time to see the original map.\nAfter that, the maze becomes invisible, and players must rely on memory to find the correct path with a limited number of moves.\n" +
+            "" +
+            "This game challenges the player's memory, focus, and strategy as they progress through increasingly difficult levels.");
+
+        System.out.print("\nInput your name: ");
+        String name = scanner.nextLine();
+
+        while (true) {
+            System.out.print("Are you ready? (Y/N): ");
+            String choice = scanner.nextLine();
+
+            if (choice.equalsIgnoreCase("Y")) {
+                break;
+            } else if (choice.equalsIgnoreCase("N")) {
+                System.out.println("Let's see the game instructions\n" +
+                    "==================================================\n" +
+                    "                    GAME INSTRUCTIONS                \n" +
+                    "==================================================\n" +
+                    "\n" +
+                    "- You will have 15 seconds to memorize the maze map.\n" +
+                    "- '#' represents walls, 'P' is the player's starting position, and 'E' is the exit.\n" +
+                    "- After 15 seconds, the original map will be hidden.\n" +
+                    "- Only your position (P), the exit (E), and dots '.' for unseen areas will be displayed.\n" +
+                    "- Use the W (up), A (left), S (down), and D (right) keys to move.\n" +
+                    "- If you hit a wall, you lose 1 life. You have 3 lives in total.\n" +
+                    "- Find your way to the exit before you run out of lives!");
+                System.out.println("So wanna try now? (Y/N)");
+            } else {
+                System.out.println("Invalid input! please answer Y or N.");
+            }
+        }
+
+        lives = 3;
+        playLevel(new Maze1());
+
+        if (lives > 0 && confirmNextLevel(1)) {
+            lives = 3;
+            playLevel(new Maze2());
+        } else if (lives > 0) {
+            System.out.println("Thanks for playing!");
+            return;
+        }
+
+        if (lives > 0 && confirmNextLevel(2)) {
+            lives = 3;
+            playLevel(new Maze3());
+        } else if (lives > 0) {
+            System.out.println("Thanks for playing!");
+            return;
+        }
+
+        if (lives > 0) {
+            System.out.println("CONGRATULATIONS! You have successfully completed all levels!");
+        } else {
+            System.out.println("Game Over! :( ");
         }
     }
 
-    public void displayHiddenMaze(Player player) {
-        System.out.println("+------ FIND WAYS TO EXIT ------+");
-        for (int i = 0; i < maze.length; i++) {
-            for (int j = 0; j < maze[0].length; j++) {
-                if (i == player.getX() && j == player.getY()) {
-                    System.out.print("P ");
-                } else if (i == exitX && j == exitY) {
-                    System.out.print("E ");
-                } else {
-                    System.out.print(". ");
+    private void playLevel(Maze maze) {
+        maze.loadMaze();
+        currentMaze = maze;
+        player = new Player(maze.getPlayerStartX(), maze.getPlayerStartY());
+
+        currentMaze.displayFullMaze();
+        try {
+            for (int i = 15; i > 0; i--) {
+                System.out.print("\rRemember This Maze... " + i + " Seconds left");
+                Thread.sleep(1000);
+            }
+        } catch (InterruptedException e) {
+            // Ignore
+        }
+
+        System.out.println("\nTime's up! The Maze is hidden!");
+        System.out.println("\n".repeat(400));
+        System.out.println("\"!!You are strictly prohibited from scrolling up!!\n");
+
+        while (true) {
+            System.out.println("\nLives: " + "*".repeat(lives));
+            currentMaze.displayHiddenMaze(player);
+
+            System.out.print(">> Input (WASD): ");
+            char move = scanner.next().charAt(0);
+            scanner.nextLine(); // consume newline
+
+            int nextX = player.getX();
+            int nextY = player.getY();
+
+            switch (Character.toUpperCase(move)) {
+                case 'W': nextX--; break;
+                case 'S': nextX++; break;
+                case 'A': nextY--; break;
+                case 'D': nextY++; break;
+                default:
+                    System.out.println("Invalid input.");
+                    continue;
+            }
+
+            if (currentMaze.isWall(nextX, nextY)) {
+                System.out.println("You hit a wall! Lose life.");
+                lives--;
+            } else {
+                player.setPosition(nextX, nextY);
+                if (currentMaze.isExit(nextX, nextY)) {
+                    System.out.println("You found the way out!");
+                    break;
                 }
             }
-            System.out.println();
+
+            if (lives == 0) {
+                System.out.println("You're out of lives!");
+                break;
+            }
         }
     }
 
-    public boolean isWall(int x, int y) {
-        return maze[x][y] == '#';
+    private boolean confirmNextLevel(int level) {
+        System.out.print("\nYou completed Level " + level + "! Do you want to continue to Level " + (level + 1) + "? (Y/N): ");
+        String next = scanner.nextLine();
+        return next.equalsIgnoreCase("Y");
     }
-
-    public boolean isExit(int x, int y) {
-        return x == exitX && y == exitY;
-    }
-
-    public int getPlayerStartX() { return playerStartX; }
-    public int getPlayerStartY() { return playerStartY; }
 }
