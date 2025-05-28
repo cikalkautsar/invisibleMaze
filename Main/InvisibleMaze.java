@@ -1,6 +1,6 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- */
+  Finally we got into main, mesin utama buat jalanin semuanya
+*/
 
 package com.cikalstudio.invisiblemaze;
 
